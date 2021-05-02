@@ -1,0 +1,289 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1561\cocoasubrtf600
+{\fonttbl\f0\froman\fcharset0 Times-Roman;\f1\fmodern\fcharset0 Courier;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red0\green0\blue233;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\cssrgb\c0\c0\c93333;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\sl560\sa321\partightenfactor0
+
+\f0\b\fs48 \cf2 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 An Exploration of Some Hacker News Posts: A Guided Project (With Instructions) On Python\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\b0\fs24 \cf2 \
+\pard\pardeftab720\sl280\sa240\partightenfactor0
+\cf2 The current project looks at user-submitted stories/posts from 'Hacker News', a site started by the startup incubator 'Y Combinator'. As on 'reddit', that site allows readers to vote and comment upon posts. 'Hacker News' is very popular with startups as posts that make it to the top of the site's listings can get hundreds of thousands of visitors as a result. The posts in focus here are the ones beginning with 'Ask HN' or 'Show HN'. 'Ask HN' is submitted to ask the community a specific question, such as regarding how to improve the user's personal website. 'Show HN' posts show the community a project, product, or just generally something interesting. In the current project, we compare the two types of posts to determine which type receives more comments on average and whether posts created at a certain time receive more comments on average. The (trimmed) data can be found in: {\field{\*\fldinst{HYPERLINK "https://www.kaggle.com/hacker-news/hacker-news-posts"}}{\fldrslt \cf3 \ul \ulc3 \strokec3 https://www.kaggle.com/hacker-news/hacker-news-posts}}. The columns are as follows: 'id', which is the unique identifier from Hacker New for the post, 'title', the title of the post, 'url', the URL that the posts links to, if the post has a URL, 'num_points', the number of points the post acquired, calculated as the total number of upvotes minus the total number of downvotes, 'num_comments', the number of comments that were made on the post, 'author', the username of the person who submitted the post, and 'created_at', the date and time at which the post was submitted. The code in [1] imports the libraries we need and reads the data set into a list of lists.\
+\pard\pardeftab720\sl280\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 ### Hacker Data ###\
+opened_file = open('hacker_news.csv') # Opening the file using the open() command. Saving the output to a variable named 'opened_file'.\
+from csv import reader\
+read_file = reader(opened_file) # Reading in the opened file using the reader() command. Saving the output to a variable named 'read_file'.\
+hn = list(read_file) # Transforming the read-in file to a list of lists using the list() command. \
+# Saving the list of lists to a variable named 'hn'.\
+print(hn[0:2])\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 [['id', 'title', 'url', 'num_points', 'num_comments', 'author', 'created_at'], ['12224879', 'Interactive Dynamic Video', 'http://www.interactivedynamicvideo.com/', '386', '52', 'ne0phyte', '8/4/2016 11:52']]\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\sa240\partightenfactor0
+\cf2 The code above triggers the header as the first list and the remaining rows of data as the following lists, one at a time respectively. Here, the 1st row of data is displayed. Prior to analysis, let us remove the header.\
+\pard\pardeftab720\sl280\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 headers = hn[0] # Extracting the first row of data, and assigning it to the variable 'headers'\
+hn = hn[1:] # Removing the first row from 'hn'\
+print(headers) # Displaying the header row\
+print(hn[0:1]) # Displaying the first row of 'hn' to verify that the header row was properly removed\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 ['id', 'title', 'url', 'num_points', 'num_comments', 'author', 'created_at']\
+[['12224879', 'Interactive Dynamic Video', 'http://www.interactivedynamicvideo.com/', '386', '52', 'ne0phyte', '8/4/2016 11:52']]\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\sa240\partightenfactor0
+\cf2 As expected, the header is not printed with the print(hn[0:1]) command, but instead, row 1 of the data is displayed. Now, let us filter our data for post titles starting with 'Ask HN' or 'Show HN' only. For this, we will use the string method 'startswith'. If, for example, the string object is 'dataquest' and we want to check if it starts with 'data', we look at the output of the object 'dataquest'.startswith('data')'. This object would return 'True' because 'dataquest' begins with 'data'. Note that capitalization matters. If the object had been 'dataquest'.startswith('Data')', the output would have been 'False'. To control for case, one can use the 'lower' method, as exemplified in the following.\
+\pard\pardeftab720\sl280\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 print('DataQuest'.lower())\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 dataquest\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\sa240\partightenfactor0
+\cf2 These methods will be used to separate posts beginning with 'Ask HN' and 'Show HN' (and case variations) into two different lists next.\
+\pard\pardeftab720\sl280\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 ask_posts = [] # Creating an empty list\
+show_posts = [] # Creating an empty list\
+other_posts = [] # Creating an empty list\
+\
+for row in hn: # Looping through each row in 'hn'\
+    title = row[1] # Assigning the title in each row (second column) to a variable named 'title'\
+    if (title.lower()).startswith('ask hn'): # If the lowercase version of 'title' starts with 'ask hn', append the row to 'ask_posts'\
+        ask_posts.append(row)\
+    elif (title.lower()).startswith('show hn'): # Else if the lowercase version of title starts with 'show hn', append the row to 'show_posts'\
+        show_posts.append(row)\
+    else:\
+        other_posts.append(row) # Else append to 'other_posts'\
+\
+print(len(hn)) # Check the overall number of posts\
+print(len(ask_posts)) # Check the number of posts in 'ask_posts'\
+print(len(show_posts)) # Check the number of posts in 'show_posts'\
+print(len(other_posts)) # Check the number of posts in 'other_posts'\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 20100\
+1744\
+1162\
+17194\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\sa240\partightenfactor0
+\cf2 In [4] above, we separated the 'ask posts' and the 'show posts' into two lists named 'ask_posts' and 'show_posts'. In the following, the focus will be on these posts. As a first step, let us determine if 'ask posts' or 'show posts' receive more comments on average.\
+\pard\pardeftab720\sl280\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 total_ask_comments = 0 # Setting 'total_ask_comments' to 0\
+for row in ask_posts: # Using a for loop to iterate over the 'ask posts'\
+    num_comments = int(row[4]) # The 'num_comments' column is the fifth column\
+    total_ask_comments += num_comments # Adding the integer value in column 5 to 'total_ask_comments'\
+avg_ask_comments = total_ask_comments / len(ask_posts) # Computing the average number of comments on 'ask_posts'\
+print(avg_ask_comments)\
+\
+total_show_comments = 0 # Setting to 0\
+for row in show_posts: # Using a for loop\
+    num_comments = int(row[4])\
+    total_show_comments += num_comments # Adding values\
+avg_show_comments = total_show_comments / len(show_posts) # Averaging\
+print(avg_show_comments)\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 14.038417431192661\
+10.31669535283993\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\sa240\partightenfactor0
+\cf2 As can be seen, 'ask posts' receive more comments on average. The focus will be on these posts in the following. We will try to find out whether 'ask posts' created at a certain time are more likely to get commented on. For this, we will calculate the amount of 'ask posts' created in each hour of the day along with the number of comments received, and we will calculate the average number of comments that 'ask posts' receive by hour created. To parse dates stored as strings and to return datetime objects, we can use the datetime.strptime() constructor.\
+\pard\pardeftab720\sl280\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sl280\sa240\partightenfactor0
+\cf2 Let us now calculate the amount of 'ask posts' created by hour and the total amount of comments.\
+\pard\pardeftab720\sl280\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 import datetime as dt # Importing module as 'dt'\
+\
+result_list = list() # Creating empty list and assigning it to 'result_list'\
+for row in ask_posts: # Looping through 'ask_posts'\
+    result_list.append([row[6], int(row[4])]) # Appending to 'result_list'; the first element is the column 'created_at' and the second element is the number of comments of the post, converted to an integer\
+    \
+counts_by_hour = \{\} # Creating an empty dictionary\
+comments_by_hour = \{\} # Creating another empty dictionary\
+\
+for row in result_list: # Looping through each row in 'result_list'\
+    dt_object = dt.datetime.strptime(row[0], "%m/%d/%Y %H:%M") # Parsing the date and creating a datetime object (with month/day/year hour:minute format)\
+    dt_hour = dt_object.strftime("%H") # Selecting just the hour from the datetime object\
+    \
+    if dt_hour not in counts_by_hour: # If the hour is not a key in 'counts_by_hour'\
+        counts_by_hour[dt_hour] = 1 # Creating the key in 'counts_by_hour' and setting it equal to 1\
+        comments_by_hour[dt_hour] = row[1] # Creating the key in 'comments_by_hour' and setting it equal to the 'comment' number\
+        \
+    else: # If the hour is already a key in 'counts_by_hour'\
+        counts_by_hour[dt_hour] += 1 # Incrementing the value in 'counts_by_hour' by 1\
+        comments_by_hour[dt_hour] += row[1] # Incrementing the value in 'comments_by_hour' by the comment number\
+        \
+print(counts_by_hour)\
+print(comments_by_hour)\
+        \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 \{'07': 34, '08': 48, '16': 108, '05': 46, '14': 107, '09': 45, '20': 80, '22': 71, '17': 100, '04': 47, '23': 68, '21': 109, '19': 110, '10': 59, '03': 54, '12': 73, '15': 116, '06': 44, '18': 109, '01': 60, '13': 85, '11': 58, '00': 55, '02': 58\}\
+\{'07': 267, '08': 492, '16': 1814, '05': 464, '14': 1416, '09': 251, '20': 1722, '22': 479, '17': 1146, '04': 337, '23': 543, '21': 1745, '19': 1188, '10': 793, '03': 421, '12': 687, '15': 4477, '06': 397, '18': 1439, '01': 683, '13': 1253, '11': 641, '00': 447, '02': 1381\}\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\sa240\partightenfactor0
+\cf2 We created the 'counts_by_hour' dictionary, which contains the number of 'ask posts' created during each hour of the day, and the 'comments_by_hour' dictionary, with the corresponding number of comments that 'ask posts' created at each hour received. We will now use these dictionaries to calculate the average number of comments for posts created during each hour of the day.\
+\pard\pardeftab720\sl280\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 avg_by_hour = [] # Initializing an empty list of lists\
+\
+for key in comments_by_hour: # Looping through\
+    total_comments = comments_by_hour[key]\
+    total_counts = counts_by_hour[key]\
+    avg_comment_by_post = total_comments / total_counts\
+    avg_by_hour.append([key, avg_comment_by_post]) # The first element of the list of lists is the hour and the second element is the average number of comments per post\
+print(avg_by_hour)                     \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 [['07', 7.852941176470588], ['08', 10.25], ['16', 16.796296296296298], ['05', 10.08695652173913], ['14', 13.233644859813085], ['09', 5.5777777777777775], ['20', 21.525], ['22', 6.746478873239437], ['17', 11.46], ['04', 7.170212765957447], ['23', 7.985294117647059], ['21', 16.009174311926607], ['19', 10.8], ['10', 13.440677966101696], ['03', 7.796296296296297], ['12', 9.41095890410959], ['15', 38.5948275862069], ['06', 9.022727272727273], ['18', 13.20183486238532], ['01', 11.383333333333333], ['13', 14.741176470588234], ['11', 11.051724137931034], ['00', 8.127272727272727], ['02', 23.810344827586206]]\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\sa240\partightenfactor0
+\cf2 We can make the result of [7] more reader friendly so as to make it easier to identify the hours with the highest values. For example, we can sort the list of lists and hence print the five highest values in a neat format. First, let us swap values with hours.\
+\pard\pardeftab720\sl280\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 swap_avg_by_hour = list() # Creating empty list and assigning it to 'swap_avg_by_hour'\
+for row in avg_by_hour: # Iterating over the rows of 'avg_by_hour'\
+    swap_avg_by_hour.append([row[1], row[0]]) # We append a list where the first element is the second element of the row and the second element is the first element of the row\
+print(swap_avg_by_hour)\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 [[7.852941176470588, '07'], [10.25, '08'], [16.796296296296298, '16'], [10.08695652173913, '05'], [13.233644859813085, '14'], [5.5777777777777775, '09'], [21.525, '20'], [6.746478873239437, '22'], [11.46, '17'], [7.170212765957447, '04'], [7.985294117647059, '23'], [16.009174311926607, '21'], [10.8, '19'], [13.440677966101696, '10'], [7.796296296296297, '03'], [9.41095890410959, '12'], [38.5948275862069, '15'], [9.022727272727273, '06'], [13.20183486238532, '18'], [11.383333333333333, '01'], [14.741176470588234, '13'], [11.051724137931034, '11'], [8.127272727272727, '00'], [23.810344827586206, '02']]\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\sa240\partightenfactor0
+\cf2 We can also use the sorted() function to sort 'swap_avg_by_hour' in a descending order by the average number of comments (the first column of the list).\
+\pard\pardeftab720\sl280\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 sorted_swap = sorted(swap_avg_by_hour, reverse = True) # The highest value in the first column appears first in the list now\
+print('Top 5 Hours for Ask Post Comments (Time Zone: Eastern Time Zone in the USA)')\
+\
+for row in sorted_swap[:5]: # Looping through each average and each hour (in this order) in the first five lists of 'sorted_swap'\
+    hrav = dt.datetime.strptime(row[1], "%H").strftime("%H:%M") # Using the str.format() method to print the hour \
+    # and average; using the datetime.strptime() constructor to return the datetime object and then using the 'strftime()' method to specify the format of the time; \
+    output = "\{hour\}: \{avg:.2f\} average comments per post".format(hour=hrav, avg=row[0]) # \{:.2f\} means that two decimal places are to be used \
+    print(output)\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 Top 5 Hours for Ask Post Comments (Time Zone: Eastern Time Zone in the USA)\
+15:00: 38.59 average comments per post\
+02:00: 23.81 average comments per post\
+20:00: 21.52 average comments per post\
+16:00: 16.80 average comments per post\
+21:00: 16.01 average comments per post\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\sa240\partightenfactor0
+\cf2 Which hours should one create a post during to have a higher chance of receiving comments? Based on the result in [9] above, a post in the time frame between 3pm and 4pm (ET) holds potential.\
+\pard\pardeftab720\sl280\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sl280\sa240\partightenfactor0
+\cf2 And finally, let us refer back to the documentation for the data set ({\field{\*\fldinst{HYPERLINK "https://www.kaggle.com/hacker-news/hacker-news-posts"}}{\fldrslt \cf3 \ul \ulc3 \strokec3 https://www.kaggle.com/hacker-news/hacker-news-posts}}) to convert the times to a different time zone. We will use the Central Daylight Time zone to exemplify the code.\
+\pard\pardeftab720\sl280\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 sorted_swap = sorted(swap_avg_by_hour, reverse = True)\
+print('Top 5 Hours for Ask Post Comments (Time Zone: Central Daylight Time in the USA (GMT -5))')\
+\
+for row in sorted_swap[:5]: # Looping through each average and each hour (in this order) in the first five lists of 'sorted_swap'\
+    hrav = (dt.datetime.strptime(row[1], "%H") - dt.timedelta(hours=1)).strftime("%H:%M") # Using the str.format() method to print the hour and average; using the datetime.strptime() constructor to format the hours\
+    output = "\{hour\}: \{avg:.2f\} average comments per post".format(hour=hrav, avg=row[0]) # Then, using the 'strftime()' method to specify the format of the time; \{:.2f\} means that two decomal places are to be used \
+    print(output)\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f1 \cf2 Top 5 Hours for Ask Post Comments (Time Zone: Central Daylight Time in the USA (GMT -5))\
+14:00: 38.59 average comments per post\
+01:00: 23.81 average comments per post\
+19:00: 21.52 average comments per post\
+15:00: 16.80 average comments per post\
+20:00: 16.01 average comments per post\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0 \cf2 \
+\pard\pardeftab720\sl280\sa240\partightenfactor0
+\cf2 The results in [10] indicate that creating a post during the hours of between 2 and 3pm may mean having a higher chance of receiving comments.\
+To sum up, we set the goal of determining whether 'ask posts' or 'show posts' got more comments, and what times had the highest traffic. For this, we collected and sorted the data, reformatted and cleaned the data to prepare for analysis, and quickly analyzed the data. We found that 'ask posts' had more comments, and that the best asking times to get a lot of comments were 2-3pm (CDT).\
+As the next steps, we might for example try to determine if 'show' or 'ask posts' receive more points on average, determine if posts created at a certain time are more likely to receive more points, and compare our results to the average number of comments and points that other posts receive.\
+\pard\pardeftab720\sl280\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sl280\sa240\partightenfactor0
+\cf2 Author: Aleksandra Zaba; second guided Pyhon project, part of Dataquest's Data Scientist specialization\
+}
